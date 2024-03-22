@@ -1,0 +1,111 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Function to insert a new node into the BST
+int* insert(int* root, int key) {
+    if (root == NULL) {
+        int* newNode = (int*)malloc(sizeof(int));
+        *newNode = key;
+        return newNode;
+    }
+    if (key < *root)
+        root = insert(root + 1, key);
+    else if (key > *root)
+        root = insert(root + 2, key);
+    return root;
+}
+
+// Function to find the minimum value node in a BST
+int* minValueNode(int* node) {
+    int* current = node;
+    while (*(current + 1) != NULL)
+        current = current + 1;
+    return current;
+}
+
+// Function to delete a node from the BST
+int* deleteNode(int* root, int key) {
+    if (root == NULL) return root;
+    if (key < *root)
+        root = deleteNode(root + 1, key);
+    else if (key > *root)
+        root = deleteNode(root + 2, key);
+    else {
+        if (*(root + 1) == NULL) {
+            int* temp = root + 2;
+            free(root);
+            return temp;
+        }
+        else if (*(root + 2) == NULL) {
+            int* temp = root + 1;
+            free(root);
+            return temp;
+        }
+        int* temp = minValueNode(root + 2);
+        *root = *temp;
+        root = deleteNode(root + 2, *temp);
+    }
+    return root;
+}
+
+// Function to find the height of the BST
+int height(int* node) {
+    if (node == NULL || *node == NULL) return -1;
+    int leftHeight = height(node + 1);
+    int rightHeight = height(node + 2);
+    return 1 + (leftHeight > rightHeight ? leftHeight : rightHeight);
+}
+
+// Function to print the level and height of any node in the BST
+void printLevelAndHeight(int* root, int key, int level) {
+    if (root == NULL || *root == NULL) {
+        printf("Node not found in the BST\n");
+        return;
+    }
+    if (*root == key) {
+        printf("Level of node %d: %d\n", key, level);
+        printf("Height of node %d: %d\n", key, height(root));
+    }
+    else if (key < *root)
+        printLevelAndHeight(root + 1, key, level + 1);
+    else
+        printLevelAndHeight(root + 2, key, level + 1);
+}
+
+// Function to print the inorder traversal of the BST
+void inorder(int* root) {
+    if (root != NULL && *root != NULL) {
+        inorder(root + 1);
+        printf("%d ", *root);
+        inorder(root + 2);
+    }
+}
+
+int main() {
+    int arr[] = {30, 20, 40, 10, 25, 35, 45, 5, 15};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    int* root = NULL;
+
+    // Creating the BST represented by the array
+    for (int i = 0; i < n; i++)
+        root = insert(root, arr[i]);
+
+    // Printing the inorder traversal of the BST
+    printf("Inorder traversal of the BST: ");
+    inorder(root);
+    printf("\n");
+
+    // Deleting node with key 20
+    root = deleteNode(root, 20);
+    printf("Inorder traversal after deleting node with key 20: ");
+    inorder(root);
+    printf("\n");
+
+    // Printing the height of the BST
+    printf("Height of the BST: %d\n", height(root));
+
+    // Printing the level and height of node with key 30
+    printLevelAndHeight(root, 30, 0);
+
+    return 0;
+}
